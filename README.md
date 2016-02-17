@@ -49,6 +49,15 @@ Ping these guys on `#lxcontainers` on `irc.freenode.net` or email your Nova LXD 
 [Nova LXD]: https://linuxcontainers.org/lxd/getting-started-openstack
 [LXD]: https://linuxcontainers.org/lxd
 
+# Storage
+
+The storage team are responsible for maintaining storage applications in Ubuntu and Charms. 
+
+ * Chris Holcombe (#irc cholcombe) \[[email](mailto:chris.holcombe@canonical.com)\]
+ * Chris MacNaughton (#irc icey) \[[email](mailto:chris.macnaughton@canonical.com)\]
+ 
+You can find these guys in the `#openstack` channel on `irc.freenode.net`.
+
 # General
 
 Other random hangers on include:
