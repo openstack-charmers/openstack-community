@@ -4,6 +4,8 @@ Welcome to the Ubuntu OpenStack community.
 
 # Charms
 
+You can find all of the OpenStack charms on [jujucharms.com][]; take a look at the [OpenStack solutions][] page for our current reference bundles for OpenStack Liberty.  If you want to try out the latest development versions of the charms via the charm store from the [OpenStack charmers next][] team.
+
 These guys are responsible for delivery of the Charms for deploying OpenStack using Juju.
 
 * Liam Young (#irc gnuoy) \[[email](mailto:liam.young@canonical.com)\]
@@ -12,13 +14,13 @@ These guys are responsible for delivery of the Charms for deploying OpenStack us
 
 The best way to contact the team about charms is in `#juju` on `irc.freenode.net` or you can mail the OpenStack Charmers list at <openstack-charmers@lists.ubuntu.com>.
 
-You can find all of the OpenStack charms on [jujucharms.com][]; take a look at the [OpenStack solutions][] page for our current reference bundles for OpenStack Liberty.  If you want to try out the latest development versions of the charms via the charm store from the [OpenStack charmers next][] team.
-
 [jujucharms.com]: http://jujucharms.com
 [OpenStack solutions]: https://jujucharms.com/openstack
 [OpenStack charmers next]: https://jujucharms.com/u/openstack-charmers-next
 
 # Core
+
+You can always use the latest and greatest OpenStack as part of every Ubuntu release as well as on Ubuntu 14.04 LTS using the [Ubuntu Cloud Archive][].
 
 The core team are reponsible for the OpenStack packages in Ubuntu and the Ubuntu Cloud Archive as well as QA generally across all OpenStack activities.
 
