@@ -51,12 +51,12 @@ Ping these guys on `#lxcontainers` on `irc.freenode.net` or email your Nova LXD 
 
 # Storage
 
-The storage team are responsible for maintaining storage applications in Ubuntu and Charms. 
+The storage team are responsible for maintaining storage applications in Ubuntu and Charms.
 
- * Chris Holcombe (#irc cholcombe) \[[email](mailto:chris.holcombe@canonical.com)\]
- * Chris MacNaughton (#irc icey) \[[email](mailto:chris.macnaughton@canonical.com)\]
- 
-You can find these guys in the `#openstack` channel on `irc.freenode.net`.
+* Chris Holcombe (#irc cholcombe) \[[email](mailto:chris.holcombe@canonical.com)\]
+* Chris MacNaughton (#irc icey) \[[email](mailto:chris.macnaughton@canonical.com)\]
+
+You can find these guys in the `#openstack` and `#juju` channels on `irc.freenode.net`.
 
 # General
 
