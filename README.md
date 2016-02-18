@@ -16,7 +16,7 @@ These guys are responsible for delivery of the Charms for deploying OpenStack us
 
 The best way to contact the team about charms is in `#juju` on `irc.freenode.net` or you can mail the OpenStack Charmers list at <openstack-charmers@lists.ubuntu.com>.
 
-If you'd like to contribute to the OpenStack charm set, take a read through the [development policy][].
+If you'd like to contribute to the OpenStack charm set, take a read through our [development policy][].
 
 [jujucharms.com]: https://jujucharms.com/q/openstack
 [OpenStack solutions]: https://jujucharms.com/openstack
