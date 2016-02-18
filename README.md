@@ -21,7 +21,7 @@ If you'd like to contribute to the OpenStack charm set, take a read through the 
 [jujucharms.com]: https://jujucharms.com/q/openstack
 [OpenStack solutions]: https://jujucharms.com/openstack
 [OpenStack charmers next]: https://jujucharms.com/u/openstack-charmers-next
-[development policy]: https://wiki.ubuntu.com/ServerTeam/OpenStackCharms
+[development policy]: https://wiki.ubuntu.com/ServerTeam/OpenStackCharmsDevelopment
 
 # Core
 
