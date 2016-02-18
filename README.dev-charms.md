@@ -77,7 +77,7 @@ git review
 [review.openstack.org]: http://review.openstack.org
 
 
-Read [development documentation][] for more details.
+Read the OpenStack [development documentation][] for full details.
 
 ## Stable charm updates
 
@@ -88,3 +88,17 @@ git checkout -b bug/XXXXX-stable stable
 git cherry-pick -x <hash of master branch commit>
 git review
 ```
+
+# Charm Testing
+
+Every proposed change to a charm is run through the following tests during the review 'check' process:
+
+* Merge check
+* pep8/lint checks (including charm proof)
+* unit tests
+
+in addition a subset of amulet tests will be executed (specified within the charm).
+
+Once a reviewer has +2'ed as proposed change, the same checks are re-executed and the full set of amulet tests are completed.
+
+Only once the 'gate' process has completed successfully will the change be landed in the target repository and branch.
