@@ -12,9 +12,11 @@ For full details please refer to the OpenStack [development documentation][].  T
 
 ### Naming
 
-All OpenStack charm repositories can be found on [github.com][].  Repositories are named charm-<charm-name> in-order to namespace the repositories within the /openstack organization appropriately.
+All OpenStack charm repositories can be found on [github.com][] under the /openstack organisation.
 
-[github.com]: http://github.com/openstack
+Repositories are named `charm-<charm-name>` in-order to namespace the repositories within the /openstack organization appropriately.
+
+[github.com]: https://github.com/openstack?query=charm
 
 ### Branches
 
