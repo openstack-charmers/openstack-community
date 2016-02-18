@@ -85,7 +85,7 @@ Any update to a stable charm must first be applied into the master branch; it sh
 
 ```
 git checkout -b bug/XXXXX-stable stable
-git cherry-pick -x <hash of master branch commit>
+git cherry-pick -x hash of master branch commit
 git review
 ```
 
@@ -102,3 +102,9 @@ in addition a subset of amulet tests will be executed (specified within the char
 Once a reviewer has +2'ed as proposed change, the same checks are re-executed and the full set of amulet tests are completed.
 
 Only once the 'gate' process has completed successfully will the change be landed in the target repository and branch.
+
+# Review changes
+
+Gerrit is fairly easy to query to get the full list of [Charm reviews][].
+
+[Charm reviews]: https://review.openstack.org/#/q/project:%22%255Eopenstack/charm.*%22
