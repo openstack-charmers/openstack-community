@@ -59,7 +59,13 @@ Related-Bug: #######
 
 Gerrit will automatically link your proposal to the bug reports on launchpad and mark them fix commited when changes are merged.
 
-Finally submit your change for review:
+Execute pep8 and unit tests:
+
+```
+tox
+```
+
+Finally submit your change for review (if they pass pep8 and unit tests!):
 
 ```
 git review
