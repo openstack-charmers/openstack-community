@@ -4,7 +4,7 @@
 
 The OpenStack charms are part of the OpenStack project, and follow the same development process as other projects.
 
-For full details please refer to the OpenStack [development documentation][].  This also includes details on signing up to become an OpenStack foundation member and getting setup with Gerrit and Launchpad to start development.
+For full details please refer to the OpenStack [development documentation][].  This also includes details on signing up to become an OpenStack foundation member and getting set up with Gerrit and Launchpad to start development.
 
 [development documentation]: http://docs.openstack.org/infra/manual/developers.html
 
@@ -14,19 +14,19 @@ For full details please refer to the OpenStack [development documentation][].  T
 
 All OpenStack charm repositories can be found on [github.com][] under the /openstack organisation.
 
-Repositories are named `charm-<charm-name>` in-order to namespace the repositories within the /openstack organization appropriately.
+Repositories are named `charm-<charm-name>` in order to namespace the repositories within the /openstack organization appropriately.
 
 [github.com]: https://github.com/openstack?query=charm
 
 ### Branches
 
-All charm repositories will contain two branches; the master branch contains the current development focus, and the stable branch contains the current stable released charm.
+All charm repositories contain two branches; the master branch contains the current development focus, and the stable branch contains the current stable released charm.
 
 ### Tags
 
 The OpenStack charm set produces an integrated release of charms every 3 months; these are tagged within the repository with YY.MM, for example 16.01 being the charm release from January 2016.  The most recent of these will also form the foundation of the stable branch.
 
-## Worflow
+## Workflow
 
 Broadly the workflow for making a change to a charm is:
 
@@ -65,7 +65,7 @@ Execute pep8 and unit tests:
 tox
 ```
 
-Finally submit your change for review (if they pass pep8 and unit tests!):
+Finally, submit your change for review (if they pass pep8 and unit tests!):
 
 ```
 git review
@@ -99,15 +99,15 @@ git review
 
 Every proposed change to a charm is run through the following tests during the review 'check' process:
 
-* Merge check
+* merge check
 * pep8/lint checks (including charm proof)
 * unit tests
+* charm smoke check (single charm, deployed in default configuration, against current LTS plus latest Ubuntu release)
+* amulet smoke check (single Ubuntu + OpenStack test combo: current LTS + latest OpenStack release, relevant to the amulet tests defined within the charm)
 
-in addition a subset of amulet tests will be executed (specified within the charm).
+TO-DO/WIP(beisner):  Once a reviewer has +2'ed a proposed change, the same checks are re-executed and the full set of amulet tests are completed.
 
-Once a reviewer has +2'ed as proposed change, the same checks are re-executed and the full set of amulet tests are completed.
-
-Only once the 'gate' process has completed successfully will the change be landed in the target repository and branch.
+Only when the 'gate' process has completed successfully will the change be landed in the target repository and branch.
 
 # Review changes
 

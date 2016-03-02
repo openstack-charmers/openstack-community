@@ -4,7 +4,7 @@ Welcome to the Ubuntu OpenStack community.
 
 # Charms
 
-You can find all of the OpenStack charms for deploying OpenStack on Ubuntu at [jujucharms.com][]; take a look at the [OpenStack solutions][] page for our current reference bundles for OpenStack Liberty.
+You can find all of the OpenStack charms for deploying OpenStack on Ubuntu at [jujucharms.com][].  Take a look at the [OpenStack solutions][] page for our current reference bundles for OpenStack Liberty.
 
 If you want to try out the latest development versions of the charms via the charm store from the [OpenStack charmers next][] team.
 
