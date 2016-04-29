@@ -39,7 +39,7 @@ rather than an included module._
 
 ### Install-time vs Load-time vs Runtime code
 
-The hooks in charms are effectively short-terms running scripts.  However,
+The hooks in charms are effectively short-term running scripts.  However,
 despite being short-lived, the code invoked is often complex with multiple
 modules being imported which also import other modules.
 
@@ -80,6 +80,20 @@ def get_our_config():
     return {
         ‘some_thing’: a.something.config(‘a-value’),
     }
+```
+
+If performance is an issue (i.e. multiple calls to `config()` are expensive)
+then either use a `@caching` type decorator, or just doing it manually. e.g.
+
+```python
+_our_config = None
+
+def get_our_config():
+    if _our_config is None:
+        _our_config = {
+            'some_thing': a.something.config('a-value'),
+        }
+    return _our_config
 ```
 
 In the bad example, in order to mock out the config module we have to do
@@ -567,3 +581,27 @@ def mult(a, b):
 Other comments should be used to support the code, but not just re-say what the
 code is doing.
 
+### Ensure there's a comma on the last item of a dictionary
+
+This helps when the developer adds an item to a dictionary literal, in that
+they don't have to edit the previous line to add a comma.  It also means that
+the review doesn't indicate that the previous line has changed (due to the
+addition of a comma).
+
+Prefer:
+
+```python
+a_dict = {
+    'one': 1,
+    'two': 2,
+}
+```
+
+over:
+
+```python
+a_dict = {
+    'one': 1,
+    'two': 2
+}
+```
