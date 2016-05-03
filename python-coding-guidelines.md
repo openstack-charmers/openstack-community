@@ -605,3 +605,65 @@ a_dict = {
     'two': 2
 }
 ```
+
+### Avoid dynamic default arguments in functions
+
+Don't use a dynamic assignment to a default argument.  e.g.
+
+```python
+def a(b=[]):
+    b.append('hello')
+    print b
+
+In [2]: a()
+['hello']
+
+In [3]: a()
+['hello', 'hello']
+```
+
+As you can see, the list is only assigned the first time, and thereafter it
+'remember' the previous values.
+
+Also avoid other default, dynamic, assignments:
+
+```python
+def f():
+    return ['Hello']
+
+
+def a(b=f()):
+    b.append('there')
+    print b
+
+
+In [3]: a()
+['Hello', 'there']
+
+In [4]: a()
+['Hello', 'there', 'there']
+```
+
+Instead, prefer:
+
+```python
+def a(b=None):
+    if b is None:
+        b = f()
+    b.append('there')
+    print b
+
+
+In [6]: a()
+['Hello', 'there']
+
+In [7]: a()
+['Hello', 'there']
+```
+
+Why?
+
+Although it can be a handy side-effect for allowing a function to remember
+previous values, due to a quirk in the interpreter in only assigning the
+reference once, it may be changed in the future and it hides the intention of
+the code.
