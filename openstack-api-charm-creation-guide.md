@@ -52,6 +52,16 @@ from charm.openstack.ip import PUBLIC, INTERNAL, ADMIN
 from charm.openstack.charm import OpenStackCharmFactory, OpenStackCharm
 from charm.openstack.adapters import OpenStackRelationAdapters
 
+charm = None
+
+def get_charm():
+    # Retrieve a charm instance from the charm factory.
+    global charm
+    if charm is None:
+        charm = CongressCharmFactory.charm(
+            release=ch_utils.os_release('congress-common', base='mitaka'))
+    return charm
+
 class CongressCharm(OpenStackCharm):
     # Packages the service needs installed
     packages = ['congress-server', 'congress-common', 'python-antlr3', 'python-pymysql']
@@ -109,20 +119,11 @@ import charm.openstack.congress as congress
 import charmhelpers.contrib.openstack.utils as ch_utils
 import charmhelpers.core.hookenv
 
-charm = None
-
-def get_charm():
-    # Retrieve a charm instance from the charm factory.
-    global charm
-    if charm is None:
-        charm = congress.CongressCharmFactory.charm(
-            release=ch_utils.os_release('congress-common', base='mitaka'))
-    return charm
 
 @reactive.hook('install')
 def install_packages():
     # When install hook fires install charm packages
-    get_charm().install()
+    congress.get_charm().install()
 ```
 
 ### Configure Congress Relation
