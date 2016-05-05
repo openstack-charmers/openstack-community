@@ -3,7 +3,7 @@
 This guide will walk the creation of a basic charm for the Openstack
 Congress service. [Congress Info](https://wiki.openstack.org/wiki/Congress).
 The charm will use prewritten Openstack [layers and interfaces](https://github.com/openstack-charmers)
-Once the charm is written it will be compose using [charm tools](https://github.com/juju/charm-tools/).
+Once the charm is written it will be composed using [charm tools](https://github.com/juju/charm-tools/).
 
 The Congress service needs to register endpoints with Keystone. It needs a service username and password and it also needs a MySQL backend to store its schema.
 
@@ -24,7 +24,7 @@ The top layer of this charm is the Congress specific code this code will live in
 
 ## Describe the Service and required layer(s)
 
-The new charm needs a basic metadata.yaml to describe what service the charm provides. Edit charm/metadata.yaml
+The new charm needs a basic charm/metadata.yaml to describe what service the charm provides. Edit charm/metadata.yaml
 
 ```yaml
 name: congress
@@ -35,7 +35,7 @@ description: |
  cloud environment.
 ```
 
-The [openstack-api layer](https://github.com/openstack-charmers/charm-layer-openstack-api) defines a series of config options and interfaces which are mostly common accross Openstack API services e.g. including the openstack-api-layer will pull in the Keystone and Mysql interfaces (among others) as well as the charm layers the new Congress charm can leverage. To instruct "charm build" to pull in the openstack-api layer edit layer.yaml:
+The [openstack-api layer](https://github.com/openstack-charmers/charm-layer-openstack-api) defines a series of config options and interfaces which are mostly common accross Openstack API services e.g. including the openstack-api-layer will pull in the Keystone and Mysql interfaces (among others) as well as the charm layers the new Congress charm can leverage. To instruct "charm build" to pull in the openstack-api layer edit charm/layer.yaml:
 
 ```yaml
 includes: ['layer:openstack-api']
@@ -47,7 +47,7 @@ includes: ['layer:openstack-api']
 
 To define the attributes of Congress, inherit the OpenStackCharm class and set Congress specific variables. This is done on the charm/lib/charm/openstack/congress.py file.
 
-```
+```python
 from charm.openstack.ip import PUBLIC, INTERNAL, ADMIN
 from charm.openstack.charm import OpenStackCharmFactory, OpenStackCharm
 from charm.openstack.adapters import OpenStackRelationAdapters
@@ -83,30 +83,31 @@ class CongressCharm(OpenStackCharm):
     }
 ```
 
-Finally create a charm factory, this is used to allow a different Charm class to be used for different Openstack releases. In this case the same charm class will be used for all Liberty and above releases.
+Finally create a charm factory, this is used to allow a different Charm class to be used for different Openstack releases. In this case the same charm class will be used for all Mitaka and above releases. Append the following to charm/charm/lib/charm/openstack/congress.py
 
 ```
 class CongressCharmFactory(OpenStackCharmFactory):
 
     releases = {
-        'liberty': CongressCharm
+        'mitaka': CongressCharm
     }
 
-    first_release = 'liberty'
+    first_release = 'mitaka'
 ```
 
 ## Add Congress code to react to events
 
 ### Install Congress Packages
 
-The reactive framework is going to emit events that the Congress charm can react to. the charm needs to define how its going to react to these events and also raise new events as needed.
+The reactive framework is going to emit events that the Congress charm can react to. The charm needs to define how its going to react to these events and also raise new events as needed.
 
-The first action a charm needs to do is to install the Congress code. This is by done running the install method from CongressCharm created earlier. Edit charm/reactive/handlers.py ...
+The first action a charm needs to do is to install the Congress code. This is by done running the install method from CongressCharm created earlier. The install method comes from OpenStackCharm class that the CongressCharm inherits. Edit charm/reactive/handlers.py ...
 
 ```
 import charms.reactive as reactive
 import charm.openstack.congress as congress
 import charmhelpers.contrib.openstack.utils as ch_utils
+import charmhelpers.core.hookenv
 
 charm = None
 
@@ -115,7 +116,7 @@ def get_charm():
     global charm
     if charm is None:
         charm = congress.CongressCharmFactory.charm(
-            release=ch_utils.os_release('congress-common', base='liberty'))
+            release=ch_utils.os_release('congress-common', base='mitaka'))
     return charm
 
 @reactive.hook('install')
@@ -126,7 +127,7 @@ def install_packages():
 
 ### Configure Congress Relation
 
-At this point the charm could be built and deployed and it would deploy a unit, and install congress. However there is no code to specify how this charm should interact with the services to depend on. For example when joining the database the charm needs to specify the user and database it requires. The following code configures the relations with the dependant services.
+At this point the charm could be built and deployed and it would deploy a unit, and install congress. However there is no code to specify how this charm should interact with the services to depend on. For example when joining the database the charm needs to specify the user and database it requires. The following code configures the relations with the dependant services. Append to charm/reactive/handlers.py:
 
 ```
 @reactive.when('amqp.connected')
@@ -158,11 +159,12 @@ Now that the charm has the relations defined that it needs the Congress charm is
 ### Create templates
 
 The charm code searches through the templates directories looking for a directory cooresponding to the Openstack release being installed
-or earlier. Since Liberty is the earliest release the charm is supporting a directory called liberty will house the templates.
+or earlier. Since Mitaka is the earliest release the charm is supporting a directory called mitaka will house the templates.
 
-```mkdir -p templates/liberty
-cp <from pkg>/{api-paste.init,policy.json,congress.conf} templates/liberty
-```
+```bash
+( cd /tmp; apt-get source congress-server; )
+mkdir -p templates/mitaka
+cp /tmp/congress*/etc/{api-paste.init,policy.json,congress.conf} templates/mitaka```
 
 For the moment policy.json and api-paste.ini can be used without modification but congress.conf needs to be updated to be a template with site specific information as well as setting some constants. Taking the congress.conf add variables for the keystone and mysql config:
 
@@ -190,9 +192,9 @@ password = {{ identity_service.service_password }}
 
 ### Render the config
 
-Now the templates and interfaces are in place the configs can be rendered. A side-effect of rendering the configs is that any associated services are restarted. Finally, set the config.complete state this will be used later to trigger other events.
+Now the templates and interfaces are in place the configs can be rendered. A side-effect of rendering the configs is that any associated services are restarted. Finally, set the config.complete state this will be used later to trigger other events. Append to charm/reactive/handlers.py
 
-```
+```python
 @reactive.when('shared-db.available')
 @reactive.when('identity-service.available')
 def render_congress_config(identity_interface, db_interface):
@@ -207,9 +209,9 @@ def render_congress_config(identity_interface, db_interface):
 
 ### Run DB Migration
 
-The DB migration can only be run once the config files are in place since as congress.conf will contain the DB connection information. To achieve this the DB migration is gated on the config.complete being set. Finally set the db.synched event so that this is only run once.
+The DB migration can only be run once the config files are in place since as congress.conf will contain the DB connection information. To achieve this the DB migration is gated on the config.complete being set. Finally set the db.synched event so that this is only run once. Append to charm/reactive/handlers.py
 
-```
+```python
 @reactive.when('config.complete')
 @reactive.when_not('db.synched')
 def run_db_migration():
@@ -227,13 +229,11 @@ mkdir build
 charm build -obuild charm
 ```
 
-The build charm can now be deployed with juju
+The build charm can now be deployed with Juju. Deploying an existing Openstack environment is not covered here.
 
 ```
+( cd build; mkdir xenial; cd xenial; ln -s ../trusty/congress; )
 cd build
-mkdir xenial
-cd xenial
-ln -s ../trusty/congress
 juju deploy local:xenial/congress
 juju add-relation congress mysql
 juju add-relation congress keystone 
