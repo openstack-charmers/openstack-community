@@ -85,7 +85,7 @@ class CongressCharm(OpenStackCharm):
 
 Finally create a charm factory, this is used to allow a different Charm class to be used for different Openstack releases. In this case the same charm class will be used for all Mitaka and above releases. Append the following to charm/charm/lib/charm/openstack/congress.py
 
-```
+```python
 class CongressCharmFactory(OpenStackCharmFactory):
 
     releases = {
@@ -103,7 +103,7 @@ The reactive framework is going to emit events that the Congress charm can react
 
 The first action a charm needs to do is to install the Congress code. This is by done running the install method from CongressCharm created earlier. The install method comes from OpenStackCharm class that the CongressCharm inherits. Edit charm/reactive/handlers.py ...
 
-```
+```python
 import charms.reactive as reactive
 import charm.openstack.congress as congress
 import charmhelpers.contrib.openstack.utils as ch_utils
@@ -129,7 +129,7 @@ def install_packages():
 
 At this point the charm could be built and deployed and it would deploy a unit, and install congress. However there is no code to specify how this charm should interact with the services to depend on. For example when joining the database the charm needs to specify the user and database it requires. The following code configures the relations with the dependant services. Append to charm/reactive/handlers.py:
 
-```
+```python
 @reactive.when('amqp.connected')
 def setup_amqp_req(amqp):
     # Request username and vhost from rabbit charm
@@ -171,7 +171,6 @@ For the moment policy.json and api-paste.ini can be used without modification bu
 ```
 auth_strategy = keystone
 ...
-# List of driver class paths to import. (list value)
 drivers = congress.datasources.neutronv2_driver.NeutronV2Driver,congress.datasources.glancev2_driver.GlanceV2Driver,congress.datasources.nova_driver.NovaDriver,congress.datasources.keystone_driver.KeystoneDriver,congress.datasources.ceilometer_driver.CeilometerDriver,congress.datasources.cinder_driver.CinderDriver,congress.datasources.swift_driver.SwiftDriver,congress.datasources.plexxi_driver.PlexxiDriver,congress.datasources.vCenter_driver.VCenterDriver,congress.datasources.murano_driver.MuranoDriver,congress.datasources.ironic_driver.IronicDriver
 ...
 connection = {{ shared_db.uri }}
@@ -224,14 +223,14 @@ def run_db_migration():
 ## Build and Deploy charm
 Build the charm to pull down the interfaces and layers.
 
-```
+```bash
 mkdir build
 charm build -obuild charm
 ```
 
 The build charm can now be deployed with Juju. Deploying an existing Openstack environment is not covered here.
 
-```
+```bash
 ( cd build; mkdir xenial; cd xenial; ln -s ../trusty/congress; )
 cd build
 juju deploy local:xenial/congress
