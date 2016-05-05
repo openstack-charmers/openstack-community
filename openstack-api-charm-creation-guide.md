@@ -165,7 +165,7 @@ or earlier. Since Mitaka is the earliest release the charm is supporting a direc
 ```bash
 ( cd /tmp; apt-get source congress-server; )
 mkdir -p templates/mitaka
-cp /tmp/congress*/etc/{api-paste.init,policy.json,congress.conf} templates/mitaka```
+cp /tmp/congress*/etc/{api-paste.init,policy.json,congress.conf} templates/mitaka
 ```
 
 For the moment policy.json and api-paste.ini can be used without modification but congress.conf needs to be updated to be a template with site specific information as well as setting some constants. Taking the congress.conf add variables for the keystone and mysql config:
