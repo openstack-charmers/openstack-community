@@ -87,13 +87,17 @@ Read the OpenStack [development documentation][] for full details.
 
 ## Stable charm updates
 
-Any update to a stable charm must first be applied into the master branch; it should then be cherry-picked in a review for the stable branch:
+Any update to a stable charm must first be applied into the master branch; it should then be cherry-picked in a review for the stable branch corresponding to your target release (ensuring that any interim releases have the fix landed):
 
 ```
-git checkout -b bug/XXXXX-stable stable
+git checkout -b bug/XXXX-stable stable/YYYY
 git cherry-pick -x hash of master branch commit
 git review
 ```
+
+Where XXXX is the launchpad bug ID corresponding to the fix you want to backport and YYYY is the release name you are targeting e.g. 16.04
+
+NOTE: when cherry-picking a commit and/or modifying the commit message, always ensure that the original Change-Id is left intact.
 
 # Charm Testing
 
