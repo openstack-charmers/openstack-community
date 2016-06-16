@@ -37,11 +37,13 @@ description: |
  cloud environment.
 ```
 
-The [openstack-api layer](https://github.com/openstack-charmers/charm-layer-openstack-api) defines a series of config options and interfaces which are mostly common accross Openstack API services e.g. including the openstack-api-layer will pull in the Keystone and Mysql interfaces (among others) as well as the charm layers the new Congress charm can leverage. To instruct "charm build" to pull in the openstack-api layer edit src/layer.yaml: 
+The [openstack-api-layer](https://github.com/openstack-charmers/charm-layer-openstack-api) defines a series of config options and interfaces which are mostly common accross Openstack API services e.g. including the openstack-api-layer will pull in the Keystone and Mysql interfaces (among others) as well as the charm layers the new Congress charm can leverage. To instruct "charm build" to pull in the openstack-api layer edit src/layer.yaml:
 
 ```yaml
 includes: ['layer:openstack-api']
 ```
+
+Note that the [openstack-api-layer](https://github.com/openstack-charmers/charm-layer-openstack-api) itself includes the [openstack-layer](https://github.com/openstack-charmers/charm-layer-openstack) which includes the core [charms.openstack](https://github.com/openstack-charmers/charms.openstack.git) module. It would be very useful to read the [README](https://github.com/openstack-charmers/charms.openstack/blob/master/README.md) to understand how the OpenStackCharm class works and how to use its features.
 
 # Add Congress configuration
 
@@ -60,7 +62,7 @@ class CongressCharm(charms_openstack.charm.OpenStackCharm):
 
     service_name = 'congress'
     release = 'mitaka'
-     
+
     # Packages the service needs installed
     packages = ['congress-server', 'congress-common', 'python-antlr3',
                 'python-pymysql']
@@ -84,6 +86,13 @@ class CongressCharm(charms_openstack.charm.OpenStackCharm):
     # Database sync command used to initalise the schema.
     sync_cmd = ['congress-db-manage', '--config-file',
                 '/etc/congress/congress.conf', 'upgrade', 'head']
+
+    # Congress requires a message queue, database and keystone to work,
+    # so these are the 'required' relationships for the service to
+    # have an 'active' workload status.  'required_relations' is used in
+    # the assess_status() functionality to determine what the current
+    # workload status of the charm is.
+    required_relations = ['ampq', 'shared-db', 'identity-service']
 
     # The restart map defines which services should be restarted when a given
     # file changes
@@ -109,9 +118,23 @@ class CongressCharm(charms_openstack.charm.OpenStackCharm):
         self.configure_source()
         # and do the actual install
         super(CongressCharm, self).install()
+
+
+# Determine the charm class by the supported release
+@charms_openstack.charm.register_os_release_selector
+def select_release():
+    """Determine the release based on the python-keystonemiddleware that is
+    installed. This selects the appropriate class to use.  See the README for
+    more details.
+    """
+    return ch_utils.os_release('python-keystonemiddleware')
 ```
 
-For reasons methods are needed to wrap the calls to the Congress charms class methods. These can be appended to the bottom of the src/lib/charm/openstack/congress.py file.
+
+In order to keep the details of the implementation of the CongressCharm in a single location, it's useful to wrap the calls to the Congres charms' class methods.  The `singleton` class property automatically constructs the correct instance of a class according to the registered classes and the selector function (above).
+
+These can be appended to the bottom of the src/lib/charm/openstack/congress.py file.
+
 
 ```python
 def install():
@@ -151,6 +174,13 @@ def render_configs(interfaces_list):
     changes, restart the services on the unit.
     """
     CongressCharm.singleton.render_with_interfaces(interfaces_list)
+
+
+ def assess_status():
+    """Just call the CongressCharm.singleton.assess_status() command to update
+    status on the unit.
+    """
+    CongressCharm.singleton.assess_status()
 ```
 
 ## Add Congress code to react to events
@@ -159,7 +189,7 @@ def render_configs(interfaces_list):
 
 The reactive framework is going to emit events that the Congress charm can react to. The charm needs to define how its going to react to these events and also raise new events as needed.
 
-The first action a charm needs to do is to install the Congress code. This is by done running the install method from CongressCharm created earlier. Edit src/reactive/handlers.py 
+The first action a charm needs to do is to install the Congress code. This is by done running the install method from CongressCharm created earlier. Edit src/reactive/handlers.py
 
 ```python
 import charms.reactive as reactive
@@ -180,7 +210,11 @@ def install_packages():
 
 ### Configure Congress Relation
 
-At this point the charm could be built and deployed and it would deploy a unit, and install congress. However there is no code to specify how this charm should interact with the services it depend on. For example when joining the database the charm needs to specify the user and database it requires. The following code configures the relations with the dependant services. Append to src/reactive/handlers.py: 
+At this point the charm could be built and deployed and it would deploy a unit, and install congress. However there is no code to specify how this charm should interact with the services it depend on. For example when joining the database the charm needs to specify the user and database it requires. The following code configures the relations with the dependant services.
+
+Note the calls `assess_status()`: when a relation changes the workload status may be changed.  e.g. if a interface is complete in the sense that it is connected and all information is available, then that interface will set the `{relation}.available` (by convention).  Thus the workload status could change to 'waiting' from 'blocked'.
+
+Append the following to src/reactive/handlers.py:
 
 ```python
 @reactive.when('amqp.connected')
@@ -190,6 +224,7 @@ def setup_amqp_req(amqp):
     """
     amqp.request_access(username='congress',
                         vhost='openstack')
+    congress.assess_status()
 
 
 @reactive.when('shared-db.connected')
@@ -198,11 +233,13 @@ def setup_database(database):
     interface.
     """
     database.configure('congress', 'congress', hookenv.unit_private_ip())
+    congress.assess_status()
 
 
 @reactive.when('identity-service.connected')
 def setup_endpoint(keystone):
     congress.setup_endpoint(keystone)
+    congress.assess_status()
 ```
 
 ## Configure Congress
@@ -243,7 +280,7 @@ user_domain_id = default
 project_name = {{ identity_service.service_tenant }}
 username = {{ identity_service.service_username }}
 password = {{ identity_service.service_password }}
-{% endif -%}  
+{% endif -%}
 ```
 
 ### Render the config
@@ -257,6 +294,7 @@ Now the templates and interfaces are in place the configs can be rendered. A sid
 def render_stuff(*args):
     congress.render_configs(args)
     reactive.set_state('config.complete')
+    congress.assess_status()
 ```
 
 ### Run DB Migration
@@ -270,6 +308,7 @@ def run_db_migration():
     congress.db_sync()
     congress.restart_all()
     reactive.set_state('db.synched')
+    congress.assess_status()
 ```
 
 ## Build and Deploy charm
@@ -285,6 +324,6 @@ The built charm can now be deployed with Juju. Deploying an existing Openstack e
 ```bash
 juju deploy <full path>/build/congress
 juju add-relation congress mysql
-juju add-relation congress keystone 
+juju add-relation congress keystone
 juju add-relation congress rabbitmq-server
 ```
