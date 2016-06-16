@@ -87,13 +87,17 @@ Read the OpenStack [development documentation][] for full details.
 
 ## Stable charm updates
 
-Any update to a stable charm must first be applied into the master branch; it should then be cherry-picked in a review for the stable branch:
+Any update to a stable charm must first be applied into the master branch; it should then be cherry-picked in a review for the stable branch corresponding to your target release (ensuring that any interim releases have the fix landed):
 
 ```
-git checkout -b bug/XXXXX-stable stable
+git checkout -b bug/XXXX-stable stable/YYYY
 git cherry-pick -x hash of master branch commit
 git review
 ```
+
+Where XXXX is the launchpad bug ID corresponding to the fix you want to backport and YYYY is the release name you are targeting e.g. 16.04
+
+NOTE: when cherry-picking a commit and/or modifying the commit message, always ensure that the original Change-Id is left intact.
 
 # Charm Testing
 
@@ -102,10 +106,10 @@ Every proposed change to a charm is run through the following tests during the r
 * merge check
 * pep8/lint checks (including charm proof)
 * unit tests
-* charm smoke check (single charm, deployed in default configuration, against current LTS plus latest Ubuntu release)
-* amulet smoke check (single Ubuntu + OpenStack test combo: current LTS + latest OpenStack release, relevant to the amulet tests defined within the charm)
+* test_charm_single:  One charm, deployed in its default config against the current LTS and the latest Ubuntu release.
+* test_charm_amulet_smoke:  Partial cloud, deployed with reference config against the current LTS with the latest OpenStack release test defined within the charm.
+* test_charm_amulet_full:  Same as amulet_smoke, but test all defined release combos.
 
-TO-DO/WIP(beisner):  Once a reviewer has +2'ed a proposed change, the same checks are re-executed and the full set of amulet tests are completed.
 
 Only when the 'gate' process has completed successfully will the change be landed in the target repository and branch.
 
