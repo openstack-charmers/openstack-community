@@ -4,9 +4,10 @@
 
 The OpenStack charms are part of the OpenStack project, and follow the same development process as other projects.
 
-For full details please refer to the OpenStack [development documentation][].  This also includes details on signing up to become an OpenStack foundation member and getting set up with Gerrit and Launchpad to start development.
+For full details please refer to the OpenStack [development documentation][] and the charm specific [coding guidelines][].  This also includes details on signing up to become an OpenStack foundation member and getting set up with Gerrit and Launchpad to start development.
 
 [development documentation]: http://docs.openstack.org/infra/manual/developers.html
+[coding guidelines]: https://github.com/openstack-charmers/openstack-community/blob/master/python-coding-guidelines.md
 
 ## Git repositories
 
@@ -20,13 +21,13 @@ Repositories are named `charm-<charm-name>` in order to namespace the repositori
 
 ### Branches
 
-All charm repositories contain two branches; the master branch contains the current development focus, and the stable branch contains the current stable released charm.
+All charm repositories contain multiple branches; the master branch contains the current development focus, and a stable/YY.MM branch contains the current stable released charm.  Stable branches are named based on the point in time they where made, for example stable/16.04.
 
-### Tags
+### Releases
 
-The OpenStack charm set produces an integrated release of charms every 3 months; these are tagged within the repository with YY.MM, for example 16.01 being the charm release from January 2016.  The most recent of these will also form the foundation of the stable branch.
+The OpenStack Charms project produces an integrated release of charms every 3 months; Each release will have an associated stable branch of the format stable/YY.MM, for example stable/16.04 being the charm release from April 2016; only the most recent stable branch is actively maintained.
 
-## Workflow
+## Development Workflow
 
 Broadly the workflow for making a change to a charm is:
 
@@ -90,8 +91,8 @@ Read the OpenStack [development documentation][] for full details.
 Any update to a stable charm must first be applied into the master branch; it should then be cherry-picked in a review for the stable branch corresponding to your target release (ensuring that any interim releases have the fix landed):
 
 ```
-git checkout -b bug/XXXX-stable stable/YYYY
-git cherry-pick -x hash of master branch commit
+git checkout -b stable/bug/XXXX stable/YYYY
+git cherry-pick -x <hash of master branch commit>
 git review
 ```
 
@@ -101,17 +102,20 @@ NOTE: when cherry-picking a commit and/or modifying the commit message, always e
 
 # Charm Testing
 
-Every proposed change to a charm is run through the following tests during the review 'check' process:
+Every proposed change to a charm is run through the following tests during the review verification process:
 
 * merge check
-* pep8/lint checks (including charm proof)
-* unit tests
+* pep8/lint checks (including charm proof) (tox -e pep8)
+* unit tests (tox -e py27)
 * test_charm_single:  One charm, deployed in its default config against the current LTS and the latest Ubuntu release.
 * test_charm_amulet_smoke:  Partial cloud, deployed with reference config against the current LTS with the latest OpenStack release test defined within the charm.
-* test_charm_amulet_full:  Same as amulet_smoke, but test all defined release combos.
+* test_charm_amulet_full:  Same as amulet_smoke, but test all defined release combinations.
 
+Only when the verification and gate processes have completed successfully will the change be landed in the target repository and branch.
 
-Only when the 'gate' process has completed successfully will the change be landed in the target repository and branch.
+The OpenStack Charm are compliant with the OpenStack [Consistent Testing Interface]; take a read on how this works to understand in full.
+
+[Consistent Testing Interface][https://governance.openstack.org/reference/cti/python_cti.html]
 
 # Review changes
 
